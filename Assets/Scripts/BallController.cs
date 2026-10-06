@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
 using TMPro;
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
 
 [RequireComponent(typeof(Rigidbody))]
 public class BallController : MonoBehaviour
@@ -8,6 +12,7 @@ public class BallController : MonoBehaviour
     public float force = 5f;
     public float angular = 20f;
     public GameObject ball;
+    public GameObject plane;
     public TextMeshProUGUI text;
     public TextMeshProUGUI win;
     public KeyDirection[] keys;
@@ -18,6 +23,9 @@ public class BallController : MonoBehaviour
     private Vector3 _jump = Vector3.zero;
     private float coins = 0;
     private GameObject[] coinsLeft;
+    private GameObject[] pilars;
+    private Boolean rotation = true;
+    private List<Vector3> positionPilars=new List<Vector3>();
 
     [System.Serializable]
     public struct KeyDirection
@@ -34,12 +42,35 @@ public class BallController : MonoBehaviour
 
         coinsLeft = GameObject.FindGameObjectsWithTag("Coin");
 
+        pilars = GameObject.FindGameObjectsWithTag("Pilars");
+
         text.text = "Coins collected: " + coins;
+
+        foreach (GameObject pilar in pilars)
+        {
+            positionPilars.Add(new Vector3(pilar.transform.position.x, pilar.transform.position.y, pilar.transform.position.z));
+        }
     }
 
     void Update()
     {
-        if(ball.transform.position.y < 0)
+        if(rotation)
+        {
+            if(plane.transform.rotation == Quaternion.Euler(new Vector3 (12,0,0))) {
+                rotation = false;
+            }
+            plane.transform.Rotate((1 * Time.deltaTime), 0, 0);
+        }
+        else
+        {
+            if(plane.transform.rotation == Quaternion.Euler(new Vector3(0, 0, 0)))
+            {
+                rotation = true;
+            }
+            plane.transform.Rotate((1 * Time.deltaTime), 0, 0);
+        }
+
+        if (ball.transform.position.y < -10)
         {
             ball.transform.position = new Vector3(1,2,1);
         }
@@ -92,10 +123,22 @@ public class BallController : MonoBehaviour
             coin.SetActive(true);
         }
 
+        int n = 0;
+        foreach (GameObject pilar in pilars)
+        {
+            pilar.transform.position=positionPilars[n];
+            pilar.transform.rotation=Quaternion.identity;
+            n++;
+        }
+
         coins = 0;
 
         text.text = "Coins collected: " + coins;
 
         ball.transform.position = new Vector3(1, 2, 1);
+
+        plane.transform.rotation=Quaternion.identity;
+
+        
     }
 }

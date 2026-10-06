@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Coin
+  - Pilars
   layers:
   - Default
   - TransparentFX
